@@ -1,0 +1,77 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="用逐小时记录探索华盛顿共享单车的工作日与休息日骑行节奏。">
+  <title>华盛顿共享单车骑行节奏</title>
+  <link rel="stylesheet" href="styles.css">
+  <script defer src="vendor/d3.min.js"></script>
+  <script defer src="data/rides.js"></script>
+  <script defer src="app.js"></script>
+</head>
+<body>
+  <header class="hero">
+    <div class="shell">
+      <div class="top"><span class="identity"><span class="mark" aria-hidden="true">◈</span> CAPITAL BIKESHARE</span><a href="#methods">数据与口径</a></div>
+      <div class="hero-body">
+        <div><p class="eyebrow">华盛顿特区 · 2011–2012</p><h1>共享单车骑行节奏</h1><p class="question">工作日和休息日，人们什么时候骑得最多？</p></div>
+        <div class="hero-meta"><strong>17,379</strong><span>条逐小时观测记录</span></div>
+      </div>
+    </div>
+  </header>
+  <main class="shell">
+    <noscript><p>请启用 JavaScript 后重新打开网页。</p></noscript>
+    <section class="card controls" aria-labelledby="filter-title">
+      <div class="heading"><h2 id="filter-title">筛选记录</h2><button type="button" id="reset" class="quiet">重置筛选</button></div>
+      <div class="filters">
+        <label>年份<select id="year"><option value="">全部年份</option><option value="0">2011 年</option><option value="1">2012 年</option></select></label>
+        <label>月份<select id="month"><option value="">全部月份</option></select></label>
+        <label>天气<select id="weather"><option value="">全部天气</option><option value="1">晴或多云</option><option value="2">雾或阴天</option><option value="3">小雨或小雪</option><option value="4">强降水或雪雾</option></select></label>
+        <label>骑行类型<select id="metric"><option value="6">全部骑行</option><option value="7">注册用户</option><option value="8">临时用户</option></select></label>
+      </div>
+      <form id="query-form">
+        <label for="query">文字筛选</label>
+        <div class="query"><input id="query" maxlength="100" aria-describedby="query-note" placeholder="例如：2012年 7月 晴天 临时用户"><button type="submit" class="primary">应用</button></div>
+        <div class="query-help"><span id="query-note">支持年份、月份、天气和骑行类型。查询从全部记录开始。</span><span id="query-result" role="status"></span></div>
+      </form>
+    </section>
+
+    <div class="overview">
+      <section class="card matrix" aria-labelledby="heat-title">
+        <div class="heading"><div><p class="eyebrow">每周分布</p><h2 id="heat-title">星期 × 小时</h2></div><span class="muted unit">次 / 观测小时</span></div>
+        <p class="hint">点击格子锁定小时，再看下方同一小时的工作日与休息日数据。</p>
+        <div class="heat-scroll"><div id="heatmap" class="heatmap" role="grid" aria-label="星期乘小时热力图" aria-rowcount="7" aria-colcount="24"></div></div>
+        <div class="matrix-foot">
+          <div id="legend" class="legend" aria-label="颜色图例"></div>
+          <span class="legend"><span class="swatch missing" aria-hidden="true"></span> 无观测</span>
+        </div>
+      </section>
+      <aside class="card snapshot" aria-labelledby="detail-title">
+        <p class="eyebrow">当前条件</p><h2 id="detail-title">观测概况</h2>
+        <div class="stats">
+          <div><span class="muted">观测小时</span><strong id="count">—</strong></div>
+          <div><span class="muted">每小时平均骑行</span><strong id="mean">—</strong></div>
+        </div>
+        <div class="detail"><div class="heading"><h3 id="cell-title">格子详情</h3><button id="unpin" class="quiet" type="button" hidden>取消锁定</button></div><p id="cell-detail" aria-live="polite"></p></div>
+        <div class="insight"><h3>峰值摘要</h3><p id="summary" aria-live="polite"></p></div>
+      </aside>
+    </div>
+
+    <section class="card profiles" aria-labelledby="line-title">
+      <div class="heading"><div><p class="eyebrow">逐小时对照</p><h2 id="line-title">工作日与休息日</h2></div><span class="muted unit">次 / 观测小时</span></div>
+      <p class="hint">悬停、触摸或用键盘查看小时详情。单击锁定后，热力图同步标出对应列。</p>
+      <div class="line-key"><span><i class="solid"></i>工作日</span><span><i class="dash"></i>休息日（周末或节假日）</span></div>
+      <div id="plot"></div>
+      <div id="line-detail" class="line-detail" aria-live="polite"></div>
+      <details class="data-table"><summary>查看逐小时数值表</summary><div id="table"></div></details>
+    </section>
+    <footer id="methods">
+      <h2>数据与口径</h2>
+      <p>每格和每个曲线点都按筛选后的实际观测小时计算平均骑行次数。空白表示无记录，样本少的时段仅供参考。热力图对每种骑行类型使用全数据的固定五级色阶，曲线纵轴随当前条件调整。</p>
+      <p>数据为 Capital Bikeshare 系统历史记录。工作日依据原数据的 <code>workingday</code> 字段划分。星期与工作日为不同分组，工作日遇节假日时以原字段为准。</p>
+      <p>数据来源 <a href="https://archive.ics.uci.edu/dataset/275/bike-sharing-dataset">UCI Bike Sharing</a> · Hadi Fanaee-T · <a href="https://creativecommons.org/licenses/by/4.0/">CC BY 4.0</a></p>
+    </footer>
+  </main>
+</body>
+</html>
